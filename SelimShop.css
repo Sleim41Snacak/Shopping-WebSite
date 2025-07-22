@@ -12,8 +12,12 @@ header {
   background-color: purple;
   color: gold;
   font-size: 30px;
-  position: relative;
+  position: fixed;  /* burayı relative'den fixed yaptık */
+  top: 0;           /* sayfanın üstüne sabitledik */
+  left: 0;
+  width: 100%;      /* tam genişlik */
   justify-content: space-between;
+  z-index: 1000;    /* diğer içeriklerin üstünde kalması için */
 }
 
 .logo {
@@ -58,6 +62,7 @@ body {
   padding: 30px;
   max-width: 1200px;
   margin: 0 auto;
+  padding-top: 140px  ;
 }
 
 .urun {
