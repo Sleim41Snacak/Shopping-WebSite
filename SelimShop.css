@@ -96,3 +96,18 @@ body {
 .urun button:hover {
   background-color: darkmagenta;
 }
+
+.temizle {
+  background-color: gold;
+  color: purple;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 18px;
+  margin-left: 10px;
+}
+
+.temizle:hover {
+  background-color: rgb(255,195, 0);
+}

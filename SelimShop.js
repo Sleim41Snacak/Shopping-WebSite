@@ -3,6 +3,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const butonlar = document.querySelectorAll(".urun button");
   const sepetYazi = document.getElementById("sepet");
 
+  const temizleButon = document.getElementById("temizleButon");
+
+temizleButon.addEventListener("click", () => {
+  toplamFiyat = 0;
+  sepetYazi.textContent = "Sepet: 0₺";
+});
+
   butonlar.forEach(buton => {
     buton.addEventListener("click", () => {
       const urun = buton.closest(".urun");
