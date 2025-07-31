@@ -1,0 +1,1 @@
+Yanlışlıkla bütün commitleri sildim :(
