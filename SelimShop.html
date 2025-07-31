@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="SelimShop.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet" />
+  <script src="SelimShop.js" defer></script>
+  <title>Selimin Sitesi</title>
+</head>
+
+<body>
+  <header>
+    <h2 class="logo">Selim Shop</h2>
+    <div class="Kategoriler-ayırma"> 
+      <button class="Kategoriler" id="Spor">Spor</button>
+      <button class="Kategoriler" id="Teknoloji">Teknoloji</button>
+      <button class="Kategoriler" id="Yiyecekİçecek">Yiyecek İçecek</button>
+      <button class="Kategoriler" id="Tümü">Tümü</button>
+    </div>
+    <div style="display: flex; align-items: center;">
+      <div id="sepet" class="sepet">Sepet: 0₺</div>
+      <button id="temizleButon" class="temizle">Sepeti Temizle</button>
+    </div>
+  </header>
+
+  <div class="urunler">
+    <!-- SPOR ÜRÜNLERİ -->
+    <div class="urun" data-kategori="Spor" data-aciklama="Orjinal Fenerbahçe forması.">
+      <img src="İmages/forma.jpeg" alt="Forma" />
+      <h3>Forma</h3>
+      <p>Fiyat: 2.250₺</p>
+      <button>Sepete Ekle</button>
+    </div>
+
+    <div class="urun" data-kategori="Spor" data-aciklama="Puma Süper Lig Topu.">
+      <img src="İmages/top.jpeg" alt="Top" />
+      <h3>Top</h3>
+      <p>Fiyat: 1.200₺</p>
+      <button>Sepete Ekle</button>
+    </div>
+
+    <div class="urun" data-kategori="Spor" data-aciklama="Nike Air Krampon.">
+      <img src="İmages/krampon.jpeg" alt="Krampon" />
+      <h3>Krampon</h3>
+      <p>Fiyat: 1.950₺</p>
+      <button>Sepete Ekle</button>
+    </div>
+
+    <!-- TEKNOLOJİ ÜRÜNLERİ -->
+    <div class="urun" data-kategori="Teknoloji" data-aciklama="İphone 16 Pro Max 1TB">
+      <img src="İmages/telefon.jpeg" alt="Telefon" />
+      <h3>Telefon</h3>
+      <p>Fiyat: 119.999₺</p>
+      <button>Sepete Ekle</button>
+    </div>
+
+    <div class="urun" data-kategori="Teknoloji" data-aciklama="Huawei Freebuds SE2 Kablosuz Kulaklık">
+      <img src="İmages/kulaklık.jpeg" alt="Kulaklık" />
+      <h3>Kulaklık</h3>
+      <p>Fiyat: 1.400₺</p>
+      <button>Sepete Ekle</button>
+    </div>
+
+    <div class="urun" data-kategori="Teknoloji" data-aciklama="Samsung Galaxy Ultra Watch 5 Su Geçirmez">
+      <img src="İmages/Akıllı saat.jpeg" alt="Akıllı saat" />
+      <h3>Akıllı Saat</h3>
+      <p>Fiyat: 7.800₺</p>
+      <button>Sepete Ekle</button>
+    </div>
+
+    <div class="urun" data-kategori="Teknoloji" data-aciklama="Razer Cobra Pro 30000 DPI RGB Kablosuz Gaming Mouse">
+      <img src="İmages/fare.jpg" alt="Oyuncu Faresi" />
+      <h3>Oyuncu Faresi</h3>
+      <p>Fiyat: 2.800₺</p>
+      <button>Sepete Ekle</button>
+    </div>
+
+    <div class="urun" data-kategori="Teknoloji" data-aciklama="GameBooster 27 inç 360Hz 0.5ms gecikme FHD Gaming Monitör">
+      <img src="İmages/monitör.png" alt="Oyuncu Monitörü" />
+      <h3>Oyuncu Monitörü</h3>
+      <p>Fiyat: 12.200₺</p>
+      <button>Sepete Ekle</button>
+    </div>
+
+    <div class="urun" data-kategori="Teknoloji" data-aciklama="Logitech G915 X LightSpeed Siyah Kablosuz Oyuncu Klavyesi">
+      <img src="İmages/klavye.jpg" alt="Oyuncu Klavyesi" />
+      <h3>Oyuncu Klavyesi</h3>
+      <p>Fiyat: 8.890₺</p>
+      <button>Sepete Ekle</button>
+    </div>
+
+    <!-- YİYECEK İÇECEK ÜRÜNLERİ -->
+    <div class="urun" data-kategori="Yiyecekİçecek" data-aciklama="500ml Erikli Doğal Kaynak Suyu">
+      <img src="İmages/su.jpeg" alt="Su" />
+      <h3>Doğal Kaynak Suyu</h3>
+      <p>Fiyat: 5₺</p>
+      <button>Sepete Ekle</button>
+    </div>
+
+    <div class="urun" data-kategori="Yiyecekİçecek" data-aciklama="Ülker Çikolatalı Gofret">
+      <img src="İmages/Gofret.jpeg" alt="Gofret" />
+      <h3>Ülker Çikolatalı Gofret</h3>
+      <p>Fiyat: 12₺</p>
+      <button>Sepete Ekle</button>
+    </div>
+
+    <div class="urun" data-kategori="Yiyecekİçecek" data-aciklama="Beypazarı Doğal Maden Suyu 250ml">
+      <img src="İmages/soda.png" alt="Soda" />
+      <h3>Beypazarı Doğal Maden Suyu</h3>
+      <p>Fiyat: 14₺</p>
+      <button>Sepete Ekle</button>
+    </div>
+
+    <div class="urun" data-kategori="Yiyecekİçecek" data-aciklama="İzmit Simidi Tadı Efsanedir İzmitli Olarak Üzerinde Tam 10.000 Susam Vardır (Saydım)">
+      <img src="İmages/simit.jpeg" alt="Simit" />
+      <h3>İzmit Simidi</h3>
+      <p>Fiyat: 15₺</p>
+      <button>Sepete Ekle</button>
+    </div>
+
+    <div class="urun" data-kategori="Yiyecekİçecek" data-aciklama="200ml Çikolatalı Süt">
+      <img src="İmages/süt.jpg" alt="Süt" />
+      <h3>Çikolatalı Süt</h3>
+      <p>Fiyat: 8₺</p>
+      <button>Sepete Ekle</button>
+    </div>
+
+    <div class="urun" data-kategori="Yiyecekİçecek" data-aciklama="İkram Bisküvi 200gr">
+      <img src="İmages/bisküvi.jpeg" alt="Bisküvi" />
+      <h3>İkram Bisküvi</h3>
+      <p>Fiyat: 19₺</p>
+      <button>Sepete Ekle</button>
+    </div>
+  </div>
+</body>
+</html>
