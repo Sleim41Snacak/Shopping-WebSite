@@ -1,1 +1,1 @@
-Yanlışlıkla bütün commitleri sildim :(
+Giriş Sayfası eklendi bunu veri tabanına bağlayıp birde sepet eklemeyi düşünüyorum.
