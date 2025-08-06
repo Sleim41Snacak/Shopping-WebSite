@@ -29,6 +29,11 @@ header {
   font-weight: bold;
   font-size: 32px;
   color: yellow;
+  cursor: pointer;
+}
+
+.sepet:hover {
+  text-decoration: underline;
 }
 
 .Kategoriler-ayırma {
@@ -217,4 +222,14 @@ body {
     opacity: 1;
     transform: scale(1);
   }
+}
+
+#anaSayfaButon {
+  background-color: blue;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 24px;
 }

@@ -1,1 +1,1 @@
-Giriş Sayfası eklendi bunu veri tabanına bağlayıp birde sepet eklemeyi düşünüyorum.
+Selim-Shop Web Sitesi

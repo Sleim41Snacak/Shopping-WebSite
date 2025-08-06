@@ -1,7 +1,31 @@
 document.addEventListener("DOMContentLoaded", () => {
-  let toplamFiyat = 0;
+  let toplamFiyat = parseInt(localStorage.getItem("toplamFiyat")) || 0;
+  const kayitliAdetler = JSON.parse(localStorage.getItem("urunAdetleri") || "[]");
+
   const sepetYazi = document.getElementById("sepet");
   const temizleButon = document.getElementById("temizleButon");
+
+  const guncelleStorage = () => {
+    const adetler = urunVerileri.map(u => u.adet);
+    localStorage.setItem("urunAdetleri", JSON.stringify(adetler));
+    localStorage.setItem("toplamFiyat", toplamFiyat.toString());
+  };
+
+  sepetYazi.textContent = `Sepet: ${toplamFiyat}₺`;
+
+  sepetYazi.addEventListener("click", () => {
+    const sepetUrunleri = [];
+    document.querySelectorAll(".urun").forEach((urun, index) => {
+      const adet = urun.querySelector(".adet")?.textContent || "0";
+      if (parseInt(adet) > 0) {
+        const isim = urun.querySelector("h3").textContent;
+        const fiyat = urun.querySelector("p").textContent.match(/[\d,.]+/)[0];
+        sepetUrunleri.push(`${adet}x ${isim} - ${fiyat}₺`);
+      }
+    });
+    localStorage.setItem("sepet", JSON.stringify(sepetUrunleri));
+    window.location.href = "sepet.html";
+  });
 
   const urunVerileri = [];
 
@@ -9,17 +33,16 @@ document.addEventListener("DOMContentLoaded", () => {
     const fiyatText = urun.querySelector("p").textContent;
     const fiyat = parseInt(fiyatText.replace(/\D/g, ""));
 
-    let adet = 0;
+    let adet = kayitliAdetler[index] || 0;
 
     const sayacDiv = document.createElement("div");
     sayacDiv.classList.add("counter");
     sayacDiv.innerHTML = `
       <button class="azalt">-</button>
-      <span class="adet">0</span>
+      <span class="adet">${adet}</span>
       <button class="arttir">+</button>
     `;
 
-    // Eski sepete ekle butonunu kaldır, sayaç ekle
     const eskiButon = urun.querySelector("button");
     if (eskiButon) eskiButon.remove();
     urun.appendChild(sayacDiv);
@@ -27,6 +50,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const azaltBtn = sayacDiv.querySelector(".azalt");
     const arttirBtn = sayacDiv.querySelector(".arttir");
     const adetSpan = sayacDiv.querySelector(".adet");
+
+    toplamFiyat += adet * fiyat;
 
     urunVerileri.push({
       fiyat,
@@ -37,6 +62,7 @@ document.addEventListener("DOMContentLoaded", () => {
         adetSpan.textContent = urunVerileri[index].adet;
         toplamFiyat += fiyat;
         sepetYazi.textContent = `Sepet: ${toplamFiyat}₺`;
+        guncelleStorage();
       },
       azalt: () => {
         if (urunVerileri[index].adet > 0) {
@@ -44,6 +70,7 @@ document.addEventListener("DOMContentLoaded", () => {
           adetSpan.textContent = urunVerileri[index].adet;
           toplamFiyat -= fiyat;
           sepetYazi.textContent = `Sepet: ${toplamFiyat}₺`;
+          guncelleStorage();
         }
       },
       sifirla: () => {
@@ -61,6 +88,8 @@ document.addEventListener("DOMContentLoaded", () => {
     urunVerileri.forEach((urun) => urun.sifirla());
     toplamFiyat = 0;
     sepetYazi.textContent = "Sepet: 0₺";
+    localStorage.removeItem("urunAdetleri");
+    localStorage.removeItem("toplamFiyat");
   });
 
   const kategoriButonlari = document.querySelectorAll(".Kategoriler");
@@ -71,7 +100,6 @@ document.addEventListener("DOMContentLoaded", () => {
       const secilenKategori = buton.id;
       urunler.forEach((urun) => {
         const urunKategori = urun.getAttribute("data-kategori");
-
         if (secilenKategori === "Tümü" || urunKategori === secilenKategori) {
           urun.style.display = "block";
         } else {
@@ -136,11 +164,13 @@ document.addEventListener("DOMContentLoaded", () => {
       modalArttir.addEventListener("click", () => {
         urunVerileri[index].arttir();
         modalAdet.textContent = urunVerileri[index].adet;
+        sepetYazi.textContent = `Sepet: ${toplamFiyat}₺`;
       });
 
       modalAzalt.addEventListener("click", () => {
         urunVerileri[index].azalt();
         modalAdet.textContent = urunVerileri[index].adet;
+        sepetYazi.textContent = `Sepet: ${toplamFiyat}₺`;
       });
     });
   });
