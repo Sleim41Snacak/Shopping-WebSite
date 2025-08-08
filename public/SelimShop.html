@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="SelimShop.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet" />
+  <title>Selim-Shop</title>
+</head>
+<body>
+  <header>
+    <h2 class="logo" style="display: flex; align-items: center; gap: 10px;">
+      Selim Shop
+      <img src="İmages/fb.png" alt="FB" style="height: 70px;">
+    </h2>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <div id="sepet" class="sepet">Sepet: 0₺</div>
+      <button id="temizleButon" class="temizle">Sepeti Temizle</button>
+      <button id="sepetSayfasi" class="sepet-btn">Sepet Sayfası</button>
+      <button id="cikisYap" class="cikis-btn">Çıkış Yap</button>
+    </div>
+  </header>
+  
+  <div class="Kategoriler-ayırma"> 
+    <button class="Kategoriler" data-category="Spor">Spor</button>
+    <button class="Kategoriler" data-category="Teknoloji">Teknoloji</button>
+    <button class="Kategoriler" data-category="Yiyecekİçecek">Yiyecek İçecek</button>
+    <button class="Kategoriler active" data-category="Tümü">Tümü</button>
+  </div>
+
+  <div id="urunler" class="urunler">
+    <div class="loading">Ürünler yükleniyor...</div>
+  </div>
+
+  <div id="urunModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <div id="modalContent">
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentProducts = [];
+    let currentCart = { items: [], totalAmount: 0 };
+
+    document.addEventListener('DOMContentLoaded', function() {
+      loadProducts();
+      loadCart();
+      setupEventListeners();
+    });
+    function setupEventListeners() {
+      document.querySelectorAll('.Kategoriler').forEach(button => {
+        button.addEventListener('click', function() {
+          const category = this.getAttribute('data-category');
+          filterProducts(category);
+          
+          document.querySelectorAll('.Kategoriler').forEach(btn => btn.classList.remove('active'));
+          this.classList.add('active');
+        });
+      });
+
+      document.getElementById('temizleButon').addEventListener('click', clearCart);
+      
+      document.getElementById('sepetSayfasi').addEventListener('click', () => {
+        window.location.href = 'sepet.html';
+      });
+
+      document.getElementById('cikisYap').addEventListener('click', logout);
+      document.querySelector('.close').addEventListener('click', closeModal);
+      window.addEventListener('click', function(event) {
+        if (event.target == document.getElementById('urunModal')) {
+          closeModal();
+        }
+      });
+    }
+
+    async function loadProducts(category = null) {
+      try {
+        const url = category && category !== 'Tümü' 
+          ? `/api/products?category=${category}`
+          : '/api/products';
+        
+        const response = await fetch(url);
+        const products = await response.json();
+        
+        currentProducts = products;
+        renderProducts(products);
+      } catch (error) {
+        console.error('Ürünler yüklenirken hata:', error);
+        document.getElementById('urunler').innerHTML = '<div class="error">Ürünler yüklenirken hata oluştu</div>';
+      }
+    }
+
+    function filterProducts(category) {
+      loadProducts(category);
+    }
+
+    function renderProducts(products) {
+      const urunlerDiv = document.getElementById('urunler');
+      
+      if (products.length === 0) {
+        urunlerDiv.innerHTML = '<div class="no-products">Bu kategoride ürün bulunamadı</div>';
+        return;
+      }
+
+      const productsHTML = products.map(product => {
+
+        const cartItem = currentCart.items.find(item => {
+
+          return item.productId && item.productId._id === product._id;
+        });
+        const currentQuantity = cartItem ? cartItem.quantity : 0;
+        
+        return `
+          <div class="urun" data-product-id="${product._id}" data-kategori="${product.category}" data-aciklama="${product.description}">
+            <img src="${product.imageUrl}" alt="${product.name}" onclick="showProductDetail('${product._id}')" />
+            <h3>${product.name}</h3>
+            <p>Fiyat: ${product.price}₺</p>
+            <div class="quantity-controls">
+              <button class="quantity-btn" onclick="decreaseQuantity('${product._id}')">-</button>
+              <span class="quantity" id="quantity-${product._id}">${currentQuantity}</span>
+              <button class="quantity-btn" onclick="increaseQuantity('${product._id}')">+</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      urunlerDiv.innerHTML = productsHTML;
+    }
+
+    async function loadCart() {
+      try {
+        const response = await fetch('/api/cart');
+        if (response.ok) {
+          const cart = await response.json();
+          currentCart = cart;
+          updateCartDisplay();
+          // Sepet yüklendikten sonra ürünleri tekrar render et
+          if (currentProducts.length > 0) {
+            renderProducts(currentProducts);
+          }
+        } else if (response.status === 401) {
+          // Giriş yapılmamış, login sayfasına yönlendir
+          window.location.href = 'login.html';
+        }
+      } catch (error) {
+        console.error('Sepet yüklenirken hata:', error);
+      }
+    }
+
+    function updateCartDisplay() {
+      const sepetDiv = document.getElementById('sepet');
+      sepetDiv.textContent = `Sepet: ${currentCart.totalAmount}₺`;
+    }
+
+    async function increaseQuantity(productId) {
+      try {
+        const response = await fetch('/api/cart/add', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ productId, quantity: 1 })
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          currentCart = result.cart;
+          updateCartDisplay();
+          renderProducts(currentProducts);
+        } else {
+          const error = await response.json();
+          console.error('Sepete ekleme hatası:', error);
+        }
+      } catch (error) {
+        console.error('Sepete ekleme hatası:', error);
+      }
+    }
+
+    async function decreaseQuantity(productId) {
+      const cartItem = currentCart.items.find(item => {
+        return item.productId && item.productId._id === productId;
+      });
+      if (!cartItem || cartItem.quantity <= 0) return;
+
+      try {
+        const newQuantity = cartItem.quantity - 1;
+        
+        if (newQuantity <= 0) {
+
+          const response = await fetch(`/api/cart/remove/${productId}`, {
+            method: 'DELETE'
+          });
+
+          if (response.ok) {
+            const result = await response.json();
+            currentCart = result.cart;
+            updateCartDisplay();
+            renderProducts(currentProducts);
+          }
+        } else {
+
+          const response = await fetch('/api/cart/update', {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ productId, quantity: newQuantity })
+          });
+
+          if (response.ok) {
+            const result = await response.json();
+            currentCart = result.cart;
+            updateCartDisplay();
+            renderProducts(currentProducts);
+          }
+        }
+      } catch (error) {
+        console.error('Miktar azaltma hatası:', error);
+      }
+    }
+
+    async function clearCart() {
+      if (!confirm('Sepeti temizlemek istediğinizden emin misiniz?')) {
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/cart/clear', {
+          method: 'DELETE'
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          currentCart = result.cart;
+          updateCartDisplay();
+          renderProducts(currentProducts);
+        } else {
+          const error = await response.json();
+          console.error('Sepet temizleme hatası:', error);
+        }
+      } catch (error) {
+        console.error('Sepet temizleme hatası:', error);
+      }
+    }
+
+    function showProductDetail(productId) {
+      const product = currentProducts.find(p => p._id === productId);
+      if (!product) return;
+
+      const modal = document.getElementById('urunModal');
+      const modalContent = document.getElementById('modalContent');
+      
+      modalContent.innerHTML = `
+        <div class="product-detail">
+          <img src="${product.imageUrl}" alt="${product.name}" style="max-width: 300px; height: auto;">
+          <h2>${product.name}</h2>
+          <p class="price">${product.price}₺</p>
+          <p class="description">${product.description}</p>
+          <p class="category">Kategori: ${product.category}</p>
+        </div>
+      `;
+      
+      modal.style.display = 'block';
+    }
+
+    function closeModal() {
+      document.getElementById('urunModal').style.display = 'none';
+    }
+
+    async function logout() {
+      try {
+        const response = await fetch('/api/logout', {
+          method: 'POST'
+        });
+
+        if (response.ok) {
+          window.location.href = 'login.html';
+        } else {
+          console.error('Çıkış yapılırken hata oluştu');
+        }
+      } catch (error) {
+        console.error('Çıkış hatası:', error);
+      }
+    }
+  </script>
+
+  <style>
+    .loading, .error, .no-products {
+      text-align: center;
+      padding: 50px;
+      font-size: 18px;
+      color: #666;
+    }
+
+    .quantity-controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin: 10px 0;
+    }
+
+    .quantity-btn {
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .quantity-btn:hover {
+      background: #0056b3;
+    }
+
+    .quantity {
+      font-weight: bold;
+      min-width: 20px;
+      text-align: center;
+      padding: 5px 10px;
+      background: #f8f9fa;
+      border-radius: 3px;
+    }
+
+    .sepet-btn, .cikis-btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-left: 10px;
+    }
+
+    .sepet-btn {
+      background: #28a745;
+      color: white;
+    }
+
+    .cikis-btn {
+      background: #dc3545;
+      color: white;
+    }
+
+    .sepet-btn:hover {
+      background: #218838;
+    }
+
+    .cikis-btn:hover {
+      background: #c82333;
+    }
+
+    .Kategoriler.active {
+      background: #007bff;
+      color: white;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+    }
+
+    .modal-content {
+      background-color: white;
+      margin: 5% auto;
+      padding: 20px;
+      border-radius: 10px;
+      width: 80%;
+      max-width: 600px;
+      position: relative;
+    }
+
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .close:hover {
+      color: black;
+    }
+
+    .product-detail {
+      text-align: center;
+    }
+
+    .product-detail h2 {
+      color: #333;
+      margin: 20px 0 10px 0;
+    }
+
+    .product-detail .price {
+      font-size: 24px;
+      font-weight: bold;
+      color: #007bff;
+      margin: 10px 0;
+    }
+
+    .product-detail .description {
+      color: #666;
+      margin: 15px 0;
+      line-height: 1.6;
+    }
+
+    .product-detail .category {
+      color: #999;
+      font-style: italic;
+    }
+  </style>
+</body>
+</html>

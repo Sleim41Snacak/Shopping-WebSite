@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+  <title>Sepetim</title>
+  <style>
+    /* === GENEL STİLLER === */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+    
+    body {
+      background-color: blue;
+      color: white;
+    }
+
+    /* === HEADER STİLLERİ === */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 60px;
+      height: 120px;
+      background-color: black;
+      color: yellow;
+      font-size: 30px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 2000;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* === BUTON STİLLERİ === */
+    .temizle, #anaSayfaDon, .cikis-btn {
+      background-color: blue;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 24px;
+      margin-left: 10px;
+      transition: background-color 0.3s;
+    }
+
+    .temizle:hover, #anaSayfaDon:hover, .cikis-btn:hover {
+      background-color: rgb(0, 0, 210);
+    }
+
+    .cikis-btn {
+      background-color: #dc3545;
+    }
+
+    .cikis-btn:hover {
+      background-color: #c82333;
+    }
+
+    /* === SEPET LİSTESİ STİLLERİ === */
+    #sepetListesi {
+      margin-top: 140px;
+      padding: 20px;
+      list-style: none;
+    }
+
+    #sepetListesi li {
+      background: white;
+      color: black;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 5px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .cart-item-info {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .cart-item-image {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 5px;
+    }
+
+    .cart-item-details h4 {
+      margin: 0;
+      color: #333;
+    }
+
+    .cart-item-details p {
+      margin: 5px 0 0 0;
+      color: #666;
+    }
+
+    .cart-item-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .quantity-controls {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .quantity-btn {
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 25px;
+      height: 25px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .quantity-btn:hover {
+      background: #0056b3;
+    }
+
+    .quantity {
+      font-weight: bold;
+      min-width: 20px;
+      text-align: center;
+    }
+
+    .remove-btn {
+      background: #dc3545;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .remove-btn:hover {
+      background: #c82333;
+    }
+
+    .item-total {
+      font-weight: bold;
+      color: #007bff;
+    }
+
+    /* SEPET YAZISI STİLİ */
+    .sepet {
+      font-weight: bold;
+      font-size: 32px;
+      color: yellow;
+      cursor: pointer;
+    }
+
+    .sepet:hover {
+      text-decoration: underline;
+    }
+
+    .loading, .error, .empty-cart {
+      text-align: center;
+      padding: 50px;
+      font-size: 18px;
+      color: white;
+      margin-top: 140px;
+    }
+
+    .total-section {
+      background: yellow;
+      color: black;
+      font-weight: bold;
+      font-size: 20px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h2 class="logo">
+      Sepetim
+      <img src="İmages/fb.png" alt="FB" style="height: 70px;">
+    </h2>
+    <div style="display: flex; align-items: center;">
+      <button id="anaSayfaDon" class="temizle">Ana Sayfa</button>
+      <button id="temizleButon" class="temizle">Sepeti Temizle</button>
+      <button id="cikisYap" class="cikis-btn">Çıkış Yap</button>
+    </div>
+  </header>
+
+  <div id="sepetContainer">
+    <div class="loading">Sepet yükleniyor...</div>
+  </div>
+
+  <script>
+    let currentCart = { items: [], totalAmount: 0 };
+
+    // Sayfa yüklendiğinde çalışacak fonksiyonlar
+    document.addEventListener('DOMContentLoaded', function() {
+      loadCart();
+      setupEventListeners();
+    });
+
+    // Event listener'ları ayarla
+    function setupEventListeners() {
+      // Ana sayfa butonu
+      document.getElementById("anaSayfaDon").addEventListener("click", () => {
+        window.location.href = "SelimShop.html";
+      });
+
+      // Sepeti temizle butonu
+      document.getElementById("temizleButon").addEventListener("click", clearCart);
+
+      // Çıkış yap butonu
+      document.getElementById("cikisYap").addEventListener("click", logout);
+    }
+
+    // Sepeti yükle
+    async function loadCart() {
+      try {
+        const response = await fetch('/api/cart');
+        
+        if (response.ok) {
+          const cart = await response.json();
+          currentCart = cart;
+          renderCart();
+        } else if (response.status === 401) {
+          // Giriş yapılmamış, login sayfasına yönlendir
+          window.location.href = 'login.html';
+        } else {
+          throw new Error('Sepet yüklenirken hata oluştu');
+        }
+      } catch (error) {
+        console.error('Sepet yükleme hatası:', error);
+        document.getElementById('sepetContainer').innerHTML = '<div class="error">Sepet yüklenirken hata oluştu</div>';
+      }
+    }
+
+    // Sepeti render et
+    function renderCart() {
+      const container = document.getElementById('sepetContainer');
+      
+      if (!currentCart.items || currentCart.items.length === 0) {
+        container.innerHTML = '<div class="empty-cart">Sepetiniz boş.</div>';
+        return;
+      }
+
+      let cartHTML = '<ul id="sepetListesi">';
+      
+      currentCart.items.forEach(item => {
+        const product = item.productId;
+        const itemTotal = item.price * item.quantity;
+        
+        cartHTML += `
+          <li>
+            <div class="cart-item-info">
+              <img src="${product.imageUrl}" alt="${product.name}" class="cart-item-image">
+              <div class="cart-item-details">
+                <h4>${product.name}</h4>
+                <p>${product.description}</p>
+                <p>Birim Fiyat: ${item.price}₺</p>
+              </div>
+            </div>
+            <div class="cart-item-controls">
+              <div class="quantity-controls">
+                <button class="quantity-btn" onclick="updateQuantity('${product._id}', ${item.quantity - 1})">-</button>
+                <span class="quantity">${item.quantity}</span>
+                <button class="quantity-btn" onclick="updateQuantity('${product._id}', ${item.quantity + 1})">+</button>
+              </div>
+              <span class="item-total">${itemTotal}₺</span>
+              <button class="remove-btn" onclick="removeFromCart('${product._id}')">Kaldır</button>
+            </div>
+          </li>
+        `;
+      });
+
+      cartHTML += `
+        <li class="total-section">
+          <strong>GENEL TOPLAM: ${currentCart.totalAmount}₺</strong>
+        </li>
+      </ul>`;
+
+      container.innerHTML = cartHTML;
+    }
+
+    // Ürün miktarını güncelle
+    async function updateQuantity(productId, newQuantity) {
+      if (newQuantity <= 0) {
+        await removeFromCart(productId);
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/cart/update', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ productId, quantity: newQuantity })
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          currentCart = result.cart;
+          renderCart();
+        } else {
+          const error = await response.json();
+          console.error('Miktar güncelleme hatası:', error);
+        }
+      } catch (error) {
+        console.error('Miktar güncelleme hatası:', error);
+      }
+    }
+
+    // Sepetten ürün çıkar
+    async function removeFromCart(productId) {
+      try {
+        const response = await fetch(`/api/cart/remove/${productId}`, {
+          method: 'DELETE'
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          currentCart = result.cart;
+          renderCart();
+        } else {
+          const error = await response.json();
+          console.error('Ürün çıkarma hatası:', error);
+        }
+      } catch (error) {
+        console.error('Ürün çıkarma hatası:', error);
+      }
+    }
+
+    // Sepeti temizle
+    async function clearCart() {
+      if (!confirm('Sepeti temizlemek istediğinizden emin misiniz?')) {
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/cart/clear', {
+          method: 'DELETE'
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          currentCart = result.cart;
+          renderCart();
+        } else {
+          const error = await response.json();
+          console.error('Sepet temizleme hatası:', error);
+        }
+      } catch (error) {
+        console.error('Sepet temizleme hatası:', error);
+      }
+    }
+
+    // Çıkış yap
+    async function logout() {
+      try {
+        const response = await fetch('/api/logout', {
+          method: 'POST'
+        });
+
+        if (response.ok) {
+          window.location.href = 'login.html';
+        } else {
+          console.error('Çıkış yapılırken hata oluştu');
+        }
+      } catch (error) {
+        console.error('Çıkış hatası:', error);
+      }
+    }
+  </script>
+</body>
+</html>
